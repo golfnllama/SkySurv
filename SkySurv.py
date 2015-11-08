@@ -31,7 +31,7 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 		# collect probe requests from user specified MAC addresses. User can also define the capture interface, and the duration of the capture
 		# -t e changes the time stamp to epoch time, and the output file is overwritten every time the command is run
 		# only the time stamp is written to the file
-		os.system("sudo tshark -i %s -f 'subtype probereq and ether host %s' -a duration:%s 2>/dev/null -t e | awk '{print $2;}' > tshark-data.txt" % (args.interface, args.target_mac, args.duration))
+		os.system("sudo tshark -i %s -I -f 'subtype probereq and ether host %s' -a duration:%s 2>/dev/null -t e | awk '{print $2;}' > tshark-data.txt" % (args.interface, args.target_mac, args.duration))
 	
 		count = 0
 		total = 0
