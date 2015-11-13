@@ -1,10 +1,9 @@
 import os
 import re
 import argparse
-import time
 ###################################################################
 # AUTHOR: Eddie Romito
-# DATE: 11/08/2015
+# DATE: 11/12/2015
 #
 # PURPOSE: Basic script to calculate how often a device issues probe 
 #   	   requests for 802.11 access points. 
@@ -26,8 +25,6 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 	averages = []
 
 	while (args.count > 0):
-		cur_time = int(time.time())
-		
 		# collect probe requests from user specified MAC addresses. User can also define the capture interface, and the duration of the capture
 		# -t e changes the time stamp to epoch time, and the output file is overwritten every time the command is run
 		# only the time stamp is written to the file
@@ -38,9 +35,13 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 
 		# read the file with tshark output
                 file = open("tshark-data.txt","r")
+
+		# begin by reading the first line of the file
                 last_line = file.readline()
+
+		# iterate through file subtracting the next time from the previous time to find an average time between probe requests
                 for line in file:
-                        dif = line - last_line
+                        dif = float(line) - float(last_line)
                         total = total + dif
                         last_line = line
                         count = count + 1
