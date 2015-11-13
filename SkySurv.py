@@ -37,11 +37,14 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 		total = 0
 
 		# read the file with tshark output
-		file = open("tshark-data.txt","r")
-		for line in file:
-			total = total + (float(line) - cur_time)
-			count = count + 1
-		file.close()
+                file = open("tshark-data.txt","r")
+                last_line = file.readline()
+                for line in file:
+                        dif = line - last_line
+                        total = total + dif
+                        last_line = line
+                        count = count + 1
+                file.close()
 	
 		# prevent division by zero and inform user that no data was collected
 		if count > 0:
