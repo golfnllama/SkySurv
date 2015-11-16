@@ -3,7 +3,7 @@ import re
 import argparse
 ###################################################################
 # AUTHOR: Eddie Romito
-# DATE: 11/12/2015
+# DATE: 11/16/2015
 #
 # PURPOSE: Basic script to calculate how often a device issues probe 
 #   	   requests for 802.11 access points. 
@@ -42,9 +42,10 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 		# iterate through file subtracting the next time from the previous time to find an average time between probe requests
                 for line in file:
                         dif = float(line) - float(last_line)
-                        total = total + dif
-                        last_line = line
-                        count = count + 1
+                       if dif > 0.5:
+                        	total = total + dif
+                        	last_line = line
+                        	count = count + 1
                 file.close()
 	
 		# prevent division by zero and inform user that no data was collected
@@ -67,10 +68,5 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 	
 else:
     print "ERROR: Please check that the MAC address was entered correctly"
-
-
-
-
-
 
 
