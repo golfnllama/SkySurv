@@ -27,8 +27,8 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 	while (args.count > 0):
 		# collect probe requests from user specified MAC addresses. User can also define the capture interface, and the duration of the capture
 		# -t e changes the time stamp to epoch time, and the output file is overwritten every time the command is run
-		# only the time stamp is written to the file
-		os.system("sudo tshark -i %s -I -f 'subtype probereq and ether host %s' -a duration:%s 2>/dev/null -t e | awk '{print $2;}' > tshark-data.txt" % (args.interface, args.target_mac, args.duration))
+		# only time stamp, MAC address, and SSID info are written to the file
+		os.system("sudo tshark -i %s -I -f 'subtype probereq and ether host %s' -a duration:%s 2>/dev/null -t e | awk '{print $2,$3,$13;}' > tshark-data.txt" % (args.interface, args.target_mac, args.duration))
 	
 		count = 0
 		total = 0
@@ -39,22 +39,30 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 		# begin by reading the first line of the file
                 last_line = file.readline()
 
+		# if an empty string is read in, there is no data in the file indicating no probes being issued within the scanning time
+		if last_line == "":
+			print "\tERROR: No data present in the %s second scan" % args.duration
+			args.count = int(args.count) - 1
+			continue
+		regex = re.match('([^\s]+)', last_line)
+		last_line = regex.group(1)
+
 		# iterate through file subtracting the next time from the previous time to find an average time between probe requests
                 for line in file:
+			p = re.match('([^\s]+)', line)
+			line = p.group(0)
                         dif = float(line) - float(last_line)
-                       if dif > 0.5:
+
+			# some devices probe for SSIDs in quick chunks. This will help generate more accurate averages as many requests sent within milliseconds of eachother are not included in the average calculation
+                        if dif > 0.5:
                         	total = total + dif
                         	last_line = line
                         	count = count + 1
                 file.close()
-	
-		# prevent division by zero and inform user that no data was collected
-		if count > 0:
-			average = total/count
-			print "\tSub Average (in seconds): ", average
-			averages.append(average)
-		else:
-			print "\tERROR: No data present in the %s second scan" % args.duration
+
+		average = total/count
+		print "\tSub Average (in seconds): ", average
+		averages.append(average)
 
 		args.count = int(args.count) - 1
 
