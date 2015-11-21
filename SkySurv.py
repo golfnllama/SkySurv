@@ -45,8 +45,8 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 			args.count = int(args.count) - 1
 			continue
 		regex = re.match('([^\s]+)', last_line)
-		last_line = regex.group(1)
-
+		last_line = regex.group(0)
+	
 		# iterate through file subtracting the next time from the previous time to find an average time between probe requests
                 for line in file:
 			p = re.match('([^\s]+)', line)
@@ -60,9 +60,10 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
                         	count = count + 1
                 file.close()
 
-		average = total/count
-		print "\tSub Average (in seconds): ", average
-		averages.append(average)
+		if count > 1:
+			average = total/count
+			print "\tSub Average (in seconds): ", average
+			averages.append(average)
 
 		args.count = int(args.count) - 1
 
@@ -70,9 +71,11 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 	finals = 0
 	for value in averages:
 		finals = finals + value
-	final_avg = finals/len(averages)
-
-	print "\n\tFinal Average (in seconds): ", final_avg
+	if len(averages) < 1:
+		print "\tERROR: No final average could be calculated"
+	else:
+		final_avg = finals/len(averages)
+		print "\n\tFinal Average (in seconds): ", final_avg
 	
 else:
     print "ERROR: Please check that the MAC address was entered correctly"
