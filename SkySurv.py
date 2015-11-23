@@ -41,7 +41,7 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 
 		# if an empty string is read in, there is no data in the file indicating no probes being issued within the scanning time
 		if last_line == "":
-			print "\tERROR: No data present in the %s second scan" % args.duration
+			print "\tINFO: No data present in the %s second scan" % args.duration
 			args.count = int(args.count) - 1
 			continue
 		regex = re.match('([^\s]+)', last_line)
@@ -64,6 +64,8 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 			average = total/count
 			print "\tSub Average (in seconds): ", average
 			averages.append(average)
+		else:
+			print "\tINFO: Not enough data present to calculate accurate average"
 
 		args.count = int(args.count) - 1
 
@@ -72,7 +74,7 @@ if re.match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', args.target_mac):
 	for value in averages:
 		finals = finals + value
 	if len(averages) < 1:
-		print "\tERROR: No final average could be calculated"
+		print "\tINFO: No final average could be calculated"
 	else:
 		final_avg = finals/len(averages)
 		print "\n\tFinal Average (in seconds): ", final_avg
